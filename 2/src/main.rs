@@ -5,7 +5,13 @@ type Selection = i32;
 const ROCK: Selection = 1;
 const PAPER: Selection = 2;
 const SCISSORS: Selection = 3;
-const NOSCORE: Selection = 5;
+const NOSELECTION: Selection = 5;
+
+type Outcome = i32;
+const WIN: Outcome = 6;
+const DRAW: Outcome = 3;
+const LOSE: Outcome = 0;
+const NOOUTCOME: Outcome = 5;
 
 fn main() {
     /*
@@ -28,64 +34,76 @@ fn calc_score(file: &str) -> i32 {
         for line in lines {
             if let Ok(outcome) = line {
                 let split: Vec<&str> = outcome.split_whitespace().collect();
-                let opponent: Selection;
-                let me: Selection;
+                let weapon: Selection;
+                let outcome: Outcome;
 
                 match split[0] {
-                    "A" => opponent = ROCK,
-                    "B" => opponent = PAPER,
-                    "C" => opponent = SCISSORS,
-                    _ => opponent = NOSCORE,
+                    "A" => weapon = ROCK,
+                    "B" => weapon = PAPER,
+                    "C" => weapon = SCISSORS,
+                    _ => weapon = NOSELECTION,
                 }
 
                 match split[1] {
-                    "X" => {
-                        score += 1;
-                        me = ROCK;
-                    }
-                    "Y" => {
-                        score += 2;
-                        me = PAPER;
-                    }
-                    "Z" => {
-                        score += 3;
-                        me = SCISSORS;
-                    }
-                    _ => me = NOSCORE,
+                    "X" => outcome = LOSE,
+                    "Y" => outcome = DRAW,
+                    "Z" => outcome = WIN,
+                    _ => outcome = NOOUTCOME,
                 }
 
-                if me == NOSCORE {
-                    panic!("I have no score. Can't deal with this")
+                if outcome == NOOUTCOME {
+                    panic!("No Outcome. Can't deal with this")
                 }
 
-                if opponent == NOSCORE {
-                    panic!("Opponent has no score. Can't deal with this")
+                if weapon == NOSELECTION {
+                    panic!("No weapon. Can't deal with this")
                 }
 
-                if me == opponent {
-                    score += 3;
-                    continue;
-                }
-
-                if me == ROCK && opponent != PAPER {
-                    score += 6;
-                    continue;
-                }
-
-                if me == PAPER && opponent != SCISSORS {
-                    score += 6;
-                    continue;
-                }
-
-                if me == SCISSORS && opponent != ROCK {
-                    score += 6;
-                    continue;
-                }
+                score += get_outcome_score(weapon, outcome);
             }
         }
     }
 
     score
+}
+
+fn get_outcome_score(weapon: Selection, outcome: Outcome) -> i32 {
+    match outcome {
+        WIN => {
+            let weapon_score = get_weapon_score(weapon, outcome);
+            6 + weapon_score
+        }
+        DRAW => {
+            // Use the same weapon to draw
+            3 + weapon
+        }
+        LOSE => {
+            let weapon_score = get_weapon_score(weapon, outcome);
+            weapon_score
+        }
+        _ => 0,
+    }
+}
+
+fn get_weapon_score(weapon: Selection, outcome: Outcome) -> i32 {
+    match weapon {
+        ROCK => match outcome {
+            WIN => PAPER,
+            LOSE => SCISSORS,
+            _ => 0,
+        },
+        PAPER => match outcome {
+            WIN => SCISSORS,
+            LOSE => ROCK,
+            _ => 0,
+        },
+        SCISSORS => match outcome {
+            WIN => ROCK,
+            LOSE => PAPER,
+            _ => 0,
+        },
+        _ => 0,
+    }
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
