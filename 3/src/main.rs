@@ -13,32 +13,50 @@ fn main() {
 fn process(lines: Lines) -> i32 {
     let mut accumulator = 0;
 
+    let mut triple: Vec<String> = vec![];
     for line in lines {
         if let Ok(pack) = line {
-            if let Some(duplicate) = find_duplicate(pack) {
-                let priority = get_item_priority(duplicate);
+            triple.push(pack)
+        }
+
+        if triple.len() == 3 {
+            if let Some(triplicate) = find_triplicate(triple) {
+                let priority = get_item_priority(triplicate);
                 accumulator += priority;
             }
+
+            triple = vec![];
         }
     }
 
     accumulator
 }
 
-fn find_duplicate(pack: String) -> Option<char> {
-    let split: Vec<char> = pack.chars().collect();
-    let (comp_one, comp_two) = split.split_at(split.len() / 2);
+fn find_triplicate(packs: Vec<String>) -> Option<char> {
+    let mut pack_split: Vec<Vec<char>> = vec![];
 
-    let mut duplicate = None;
-    for (_, comp_one_item) in comp_one.iter().enumerate() {
-        for (_, comp_two_item) in comp_two.iter().enumerate() {
-            if comp_one_item == comp_two_item {
-                duplicate = Some(comp_one_item.clone());
+    for pack in packs {
+        let split: Vec<char> = pack.chars().collect();
+        pack_split.push(split)
+    }
+
+    let mut found_char = None;
+
+    for pack_one_char in pack_split[0].clone() {
+        for pack_two_char in pack_split[1].clone() {
+            if pack_two_char != pack_one_char {
+                continue;
+            }
+
+            for pack_three_char in pack_split[2].clone() {
+                if pack_two_char == pack_three_char {
+                    found_char = Some(pack_three_char)
+                }
             }
         }
     }
 
-    duplicate
+    found_char
 }
 
 fn get_item_priority(item: char) -> i32 {
