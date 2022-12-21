@@ -59,7 +59,7 @@ fn calc_score(file: &str) -> i32 {
                     panic!("No weapon. Can't deal with this")
                 }
 
-                score += get_outcome_score(weapon, outcome);
+                let outcome_score = get_outcome_score(weapon, outcome);
             }
         }
     }
