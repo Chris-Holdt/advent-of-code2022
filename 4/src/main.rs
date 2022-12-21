@@ -49,14 +49,27 @@ fn does_encompass(pair: Vec<&str>) -> bool {
         Err(why) => panic!("{:?}", why),
     }
 
-    let mut encompass = false;
+    let mut encompass = true;
 
-    if (elf_1_up <= elf_2_up && elf_1_down >= elf_2_down)
-        || (elf_1_up >= elf_2_up && elf_1_down <= elf_2_down)
+    if (elf_1_up > elf_2_up
+        && elf_1_down > elf_2_down
+        && elf_1_up > elf_2_down
+        && elf_1_down > elf_2_up)
+        || (elf_1_up < elf_2_up
+            && elf_1_down < elf_2_down
+            && elf_1_up < elf_2_down
+            && elf_1_down < elf_2_up)
     {
-        encompass = true;
+        encompass = false;
     }
 
+    /*
+        if (elf_1_up <= elf_2_up && elf_1_down >= elf_2_down)
+            || (elf_1_up >= elf_2_up && elf_1_down <= elf_2_down)
+        {
+            encompass = true;
+        }
+    */
     /*
         if (elf_one_range[0] >= elf_two_range[0] && elf_one_range[1] >= elf_two_range[1])
             || (elf_one_range[0] <= elf_two_range[0] && elf_one_range[1] <= elf_two_range[1])
