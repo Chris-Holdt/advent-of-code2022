@@ -3,8 +3,8 @@ use std::{fs::File, path::Path};
 
 type Lines = io::Lines<io::BufReader<File>>;
 fn main() {
-    let lines = get_puzzle_input("./input.txt");
     // let packet = sample_input();
+    let lines = get_puzzle_input("./input.txt");
     let l: Vec<String>;
     match lines.collect() {
         Ok(val) => l = val,
@@ -22,17 +22,34 @@ fn main() {
 fn process(packet: String) -> i32 {
     let chars: Vec<char> = packet.chars().collect();
 
-    let mut last_four: Vec<char> = vec![];
+    let mut unique_chars: Vec<char> = vec![];
     let mut i = 0;
+    // println!("chars {:?}", chars);
     while i < chars.len() {
         let c = chars[i];
-        if contains(&last_four, &c) {
-            last_four = vec![];
+        // println!("Current unique list {:?}", unique_chars);
+        // println!("Current char {}", c);
+
+        let di = contains(&unique_chars, &c);
+        if let Some(dupe_index) = di {
+            /* println!(
+                "Found dupe char {} at {}",
+                unique_chars[dupe_index], dupe_index
+            );
+            let mut a = unique_chars.clone();
+            println!("OG {:?}", a);
+            let b = a.split_off(dupe_index + 1);
+            println!("OG after split {:?}", a);
+            println!("Split {:?}", b); */
+            unique_chars = unique_chars.split_off(dupe_index + 1);
         }
 
-        last_four.push(c);
+        unique_chars.push(c);
 
-        if last_four.len() == 4 {
+        // println!("\nchar: {}, vec: {:?}\n", c, unique_chars);
+
+        if unique_chars.len() == 14 {
+            // println!("Got 14 unique chars {:?}", unique_chars);
             return (i as i32) + 1;
         }
 
@@ -41,19 +58,26 @@ fn process(packet: String) -> i32 {
     0
 }
 
-fn contains(v: &Vec<char>, c: &char) -> bool {
-    for curr_char in v {
-        if curr_char == c {
-            return true;
+fn contains(v: &Vec<char>, c: &char) -> Option<usize> {
+    let mut i = 0;
+    while i < v.len() {
+        let curr_char = v[i];
+        if &curr_char == c {
+            return Some(i);
         }
+
+        i += 1;
     }
 
-    false
+    None
 }
 
 fn sample_input() -> String {
-    // First marker after char 6
-    return String::from("nppdvjthqldpwncqszvftbrmjlhg");
+    // return String::from("mjqjpqmgbljsphdztnvjfqwrcgsmlb"); // 19
+    // return String::from("bvwbjplbgvbhsrlpgdmjqwftvncz"); // 23
+    // return String::from("nppdvjthqldpwncqszvftbrmjlhg"); // 23
+    // return String::from("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw"); // 26
+    return String::from("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg"); // 29
 }
 
 fn get_puzzle_input(filename: &str) -> Lines {
